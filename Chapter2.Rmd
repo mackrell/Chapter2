@@ -1,0 +1,427 @@
+---
+title: "Data Visualization Notes"
+author: "Kieran Healy"
+date: "2019-01-02"
+output: html_document
+
+---
+
+## Data Visualization Notes
+
+This is a starter RMarkdown template to accompany *Data Visualization* (Princeton University Press, 2019). You can use it to take notes, write your code, and produce a good-looking, reproducible document that records the work you have done. At the very top of the file is a section of *metadata*, or information about what the file is and what it does. The metadata is delimited by three dashes at the start and another three at the end. You should change the title, author, and date to the values that suit you. Keep the `output` line as it is for now, however. Each line in the metadata has a structure. First the *key* ("title", "author", etc), then a colon, and then the *value* associated with the key.  
+
+## This is an RMarkdown File
+
+Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. A *code chunk* is a specially delimited section of the file. You can add one by moving the cursor to a blank line choosing Code > Insert Chunk from the RStudio menu. When you do, an empty chunk will appear:
+
+```{r}
+
+
+```
+
+Code chunks are delimited by three backticks (found to the left of the 1 key on US and UK keyboards) at the start and end. The opening backticks also have a pair of braces and the letter `r`, to indicate what language the chunk is written in. You write your code inside the code chunks. Write your notes and other material around them, as here. 
+
+## Before you Begin
+
+To install the tidyverse, make sure you have an Internet connection. Then *manually* run the code in the chunk below. If you knit the document if will be skipped. We do this because you only need to install these packages once, not every time you run this file. Either knit the chunk using the little green "play" arrow to the right of the chunk area, or copy and paste the text into the console window.
+
+```{r install, eval = FALSE}
+
+## This code will not be evaluated automatically.
+## (Notice the eval = FALSE declaration in the options section of the
+## code chunk)
+
+my_packages <- c("tidyverse", "broom", "coefplot", "cowplot",
+                 "gapminder", "GGally", "ggrepel", "ggridges", "gridExtra",
+                 "here", "interplot", "margins", "maps", "mapproj",
+                 "mapdata", "MASS", "quantreg", "rlang", "scales",
+                 "survey", "srvyr", "viridis", "viridisLite", "devtools")
+
+install.packages(my_packages, repos = "http://cran.rstudio.com")
+
+```
+
+## Set Up Your Project and Load Libraries
+
+To begin we must load some libraries we will be using. If we do not load them, R will not be able to find the functions contained in these libraries. The tidyverse includes ggplot and other tools. We also load the socviz and gapminder libraries.
+
+```{r setup, include=FALSE}
+
+## By defult, show code for all chunks in the knitted document,
+## as well as the output. To override for a particular chunk
+## use echo = FALSE in its options.
+knitr::opts_chunk$set(echo = TRUE) 
+
+## Set the default size of figures
+knitr::opts_chunk$set(fig.width=8, fig.height=5)  
+
+## Load the libraries we will be using
+library(gapminder)
+library(here)
+library(socviz)
+library(tidyverse)
+
+```
+
+Notice that here, the braces at the start of the code chunk have some additional options set in them. There is the language, `r`, as before. This is required. Then there is the word `setup`, which is a label for your code chunk. Labels are useful to briefly say what the chunk does. Label names must be unique (no two chunks in the same document can have the same label) and cannot contain spaces. Then, after the comma, an option is set: `include=FALSE`. This tells R to run this code but not to include the output in the final document. 
+
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r look}
+gapminder
+```
+
+The remainder of this document contains the chapter headings for the book, and an empty code chunk in each section to get you started. Try knitting this document now by clicking the "Knit" button in the RStudio toolbar, or choosing File > Knit Document from the RStudio menu.
+
+## Look at Data
+
+```{r}
+
+```
+
+
+## Get Started
+
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x=gdpPercap, y=lifeExp))
+p + geom_point()
+```
+
+
+## Make a Plot
+
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point()
+
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_smooth()
+
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point() + geom_smooth()
+```
+
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point() + geom_smooth(method="lm")
+```
+
+..."an ill-advised linear fit"
+
+In the plot, data is bunched up against the left side. The x-scale would probably look better if it were converted from a linear scale to a log scale, using the function scale_x_log10().
+
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point() + geom_smooth(method="gam") + scale_x_log10()
+```
+
+Let's tidy up the axes.
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point() + geom_smooth(method="gam") + scale_x_log10(labels = scales::dollar)
+```
+
+Adding some colour
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point(color="purple") + geom_smooth(method="loess") + scale_x_log10(labels = scales::dollar)
+```
+
+removing the Standard Error ribbon (se)
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point(alpha=0.3) + geom_smooth(color="orange", se = FALSE, size=1, method="lm") + scale_x_log10(labels = scales::dollar)
+```
+
+fix the labels
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point(alpha=0.3) + geom_smooth(method="gam") + scale_x_log10(labels = scales::dollar) + labs(x="GDP Per Capita", y="Life Expectancy in Years", title="Economic Growth and Life Expectancy", subtitle="Data points are country-years", caption="Source: Gapminder")
+```
+
+Add continent information
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp, color=continent))
+p + geom_point(alpha=0.3) + geom_smooth(method="loess") + scale_x_log10(labels = scales::dollar) + labs(x="GDP Per Capita", y="Life Expectancy in Years", title="Economic Growth and Life Expectancy", subtitle="Data points are country-years", caption="Source: Gapminder")
+```
+
+Colouring the SE shading.
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp, color=continent, fill=continent))
+p + geom_point(alpha=0.3) + geom_smooth(method="loess") + scale_x_log10(labels = scales::dollar) + labs(x="GDP Per Capita", y="Life Expectancy in Years", title="Economic Growth and Life Expectancy", subtitle="Data points are country-years", caption="Source: Gapminder")
+```
+
+Using one SE line
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point(mapping=aes(color=continent)) + geom_smooth(method="loess") + scale_x_log10(labels = scales::dollar) + labs(x="GDP Per Capita", y="Life Expectancy in Years", title="Economic Growth and Life Expectancy", subtitle="Data points are country-years", caption="Source: Gapminder")
+ggsave(filename="my_figure.png")
+```
+
+Mapping continuous variables to colour
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p + geom_point(mapping=aes(color=log(pop))) + geom_smooth(method="loess") + scale_x_log10(labels = scales::dollar) + labs(x="GDP Per Capita", y="Life Expectancy in Years", title="Economic Growth and Life Expectancy", subtitle="Data points are country-years", caption="Source: Gapminder")
+```
+
+Putting 'smooth' before 'point'
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp))
+p  + geom_smooth(method="loess") + geom_point(mapping=aes(color=continent)) + scale_x_log10(labels = scales::dollar) + labs(x="GDP Per Capita", y="Life Expectancy in Years", title="Economic Growth and Life Expectancy", subtitle="Data points are country-years", caption="Source: Gapminder")
+ggsave(filename="my_figure.png")
+```
+
+## Show the Right Numbers
+
+```{r}
+p <- ggplot(data=gapminder, mapping=aes(x=year, y=gdpPercap))
+p + geom_line(aes(group=country))
+```
+
+Using Facet to make small multiples
+```{r}
+p <-  ggplot(data=gapminder, mapping=aes(x = year, y = gdpPercap))
+p + geom_line(aes(group=country)) + facet_wrap(~continent)
+```
+
+Arranging the facets
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = year, y = gdpPercap))
+p + geom_line(color="gray70", aes(group = country)) + geom_smooth(size = 1.1, method = "loess", se = FALSE) + scale_y_log10(labels=scales::dollar) + facet_wrap(~continent, ncol = 5) + labs(x = "Year", y = "GDP per capita", title = "GDP per capita on Five Continents")
+```
+
+```{r}
+p <- ggplot(data = gss_sm, mapping=aes(x = age, y=childs))
+p + geom_point(alpha = 0.2) + geom_smooth() + facet_grid( sex ~ race)
+```
+
+```{r}
+p <- ggplot(data = gss_sm, mapping=aes(x = bigregion))
+p + geom_bar()
+```
+
+```{r}
+p <- ggplot(data = gss_sm, mapping=aes(x = bigregion))
+p + geom_bar(mapping = aes(y = ..prop.., group = 1))
+```
+
+### Colouring bar charts
+
+```{r}
+p <-  ggplot(data = gss_sm, mapping = aes(x = religion, fill = religion))
+p + geom_bar()
+```
+
+### Colouring Bar Charts, and getting rid of the unnecessary legend
+
+```{r}
+p <-  ggplot(data = gss_sm, mapping = aes(x = religion, fill = religion))
+p + geom_bar() + guides(fill=FALSE)
+```
+
+### Creating a stacked Bar Chart
+
+```{r}
+p <- ggplot(data=gss_sm, mapping = aes(x = bigregion, fill = religion))
+p + geom_bar()
+```
+
+### Making the stacks the same height
+
+```{r}
+p <- ggplot(data=gss_sm, mapping = aes(x = bigregion, fill = religion))
+p + geom_bar(position="fill")
+```
+
+### Making new columns for each category
+
+```{r}
+p <- ggplot(data=gss_sm, mapping = aes(x = bigregion, fill = religion))
+p + geom_bar(position="dodge")
+```
+
+### Making the stacks the same height, with new columns for each category
+
+```{r}
+p <- ggplot(data=gss_sm, mapping = aes(x = bigregion, fill = religion))
+p + geom_bar(position="dodge", mapping=aes(y=..prop..))
+```
+
+### Making new columns for each category with proportions, not counts
+
+```{r}
+p <- ggplot(data=gss_sm, mapping = aes(x = bigregion, fill = religion))
+p + geom_bar(position="dodge", mapping=aes(y=..prop.., group=religion))
+```
+
+### Using facet_wrap
+
+```{r}
+p <- ggplot(data=gss_sm, mapping = aes(x = religion))
+p + geom_bar(position="dodge", mapping=aes(y=..prop.., group=bigregion)) + facet_wrap(~bigregion, ncol=2)
+```
+
+### Creating Histograms
+
+```{r}
+p <-  ggplot(data = midwest, mapping = aes(x = area))
+p + geom_histogram()
+```
+
+```{r}
+p <-  ggplot(data = midwest, mapping = aes(x = area))
+p + geom_histogram(bins=10)
+```
+
+### Comparing two histograms
+
+```{r}
+oh_wi <- c("OH", "WI")
+
+p <- ggplot(data = subset(midwest, subset = state %in% oh_wi), mapping = aes(x=percollege, fill=state))
+p + geom_histogram(alpha = 0.4, bins = 20)
+```
+
+### Kernel density as an alternative to histograms
+
+```{r}
+p <- ggplot(data = midwest, mapping = aes(x=area))
+p + geom_density()
+```
+
+### Using colour with kernel density
+
+```{r}
+p <- ggplot(data = midwest, mapping = aes(x=area, fill=state, color=state))
+p + geom_density(alpha = 0.3)
+```
+
+### Creating stacked density plots
+
+```{r}
+p <- ggplot(data=subset(midwest, subset = state %in% oh_wi), mapping = aes(x=area, fill=state, color=state))
+p + geom_density(alpha = 0.3, mapping = (aes(y = ..scaled..)))
+```
+
+### Working with data that has already been summarized
+
+```{r}
+p <-  ggplot(data=titanic, mapping = aes(x = fate, y = percent, fill = sex))
+p + geom_bar(position = "dodge", stat = "identity") + theme(legend.position = "top")
+```
+
+### Using 'position = identity' to plot values as given.
+
+```{r}
+p <- ggplot(data = oecd_sum, mapping = aes( x= year, y = diff, fill = hi_lo))
+p + geom_col() + guides(fill = FALSE) + labs(x = NULL, y = "Difference in Years", title = "The US Life Expectancy Gap", subtitle = "Difference between US and OECD average life expectancies, 1960-2015", caption = "Data: OECD. After a chart by Christopher Ingraham, Washington Post, December 17th, 2017.")
+```
+
+### Keynote test
+
+```{r keynote-test, fig.height=40}
+data = read.csv("Keynote.csv")
+p <- ggplot(data = data, mapping = aes(x = year, y = amount))
+p + geom_line(aes(group = country)) + facet_wrap(~ country, ncol=4)
+```
+
+## Graph Tables, Make Labels, Add Notes
+
+### Using pipes to summarize data
+
+```{r}
+rel_by_region <-  gss_sm %>% group_by(bigregion, religion) %>% summarize(N = n()) %>% mutate(freq = N / sum(N), pct = round((freq * 100), 0))
+rel_by_region
+
+p <- ggplot(rel_by_region, aes(x = bigregion, y = pct, fill=religion))
+p + geom_col(position = "dodge2") + labs(x= "Region", y = "Percent", fill = "Religion") + theme(legend.position = "top")
+```
+
+### Flipping the charts
+
+```{r}
+p <- ggplot(rel_by_region, aes(x = religion, y = pct, fill=religion))
+p + theme(panel.background = element_rect(fill = 'white', color="black")) + geom_col(position = "dodge2") + labs(x= NULL, y = "Percent", fill = "Religion") + guides(fill = FALSE) + coord_flip() + facet_grid(~ bigregion) 
+```
+
+### Continuous variables by group or category
+
+```{r}
+organdata %>% select(1:6) %>% sample_n(size = 10)
+p <-  ggplot(data = organdata, mapping = aes(x = year, y = donors))
+p + geom_point()
+```
+
+
+### Faceting the data
+
+```{r}
+p <- ggplot(data = organdata, mapping = aes(x = year, y = donors))
+p + geom_line(aes(group = country)) + facet_wrap(~country, ncol = 4)
+```
+
+### Making a boxplot
+
+```{r making_a_boxplot}
+p <- ggplot(data = organdata, mapping=aes(x=country, y = donors))
+p + geom_boxplot()
+```
+
+### Flipping the labels
+
+```{r flipping_the_labels}
+p <- ggplot(data = organdata, mapping=aes(x=country, y = donors))
+p + geom_boxplot() + coord_flip()
+```
+
+### Reorder the information
+
+```{r reorder_the_information}
+p <- ggplot(data = organdata, mapping=aes(x=reorder(country, donors, na.rm = TRUE), y = donors))
+p + geom_boxplot() + labs(x=NULL) + coord_flip()
+```
+
+### Reorder the information (with the NULL removed)
+
+```{r reorder_the_information_2}
+p <- ggplot(data = organdata, mapping=aes(x=reorder(country, donors, na.rm = TRUE), y = donors))
+p + geom_boxplot() + coord_flip()
+```
+
+### Making a violin chart
+
+```{r violin}
+p <- ggplot(data = organdata, mapping=aes(x=reorder(country, donors, na.rm = TRUE), y = donors))
+p + geom_violin() + labs(x=NULL) + coord_flip()
+```
+
+### Adding color to the boxchart
+
+```{r coloured_boxchart}
+p <- ggplot(data = organdata, mapping=aes(x=reorder(country, donors, na.rm = TRUE), y = donors, fill=world))
+p + geom_boxplot() + labs(x=NULL) + coord_flip() + theme(legend.position="top")
+```
+
+## Work with Models
+
+```{r}
+
+```
+
+## Draw Maps
+
+```{r}
+
+```
+
+
+## Refine your Plots
+
+```{r}
+
+```
+
+
